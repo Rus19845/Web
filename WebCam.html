@@ -1,1 +1,69 @@
-<html style="height: 100%;"><head><meta name="viewport" content="width=device-width, minimum-scale=0.1"></head><body style="margin: 0px; background: #0e0e0e; height: 100%"><img style="display: block;-webkit-user-select: none;margin: auto;background-color: hsl(0, 0%, 25%);" src="http://192.168.0.17:4747/video" width="393" height="294"></body></html>
+<!DOCTYPE html>
+<html lang="ru">
+ 
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="WebRTC code samples">
+    <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1">
+    <meta itemprop="description" content="Client-side WebRTC code samples">
+    <meta itemprop="name" content="WebRTC code samples">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta id="theme-color" name="theme-color" content="#ffffff">
+    <title>getUserMedia</title>
+</head>
+ 
+<body>
+    <div id="container">
+        <video id="gum-local" autoplay playsinline></video>
+        <button id="showVideo">Open camera</button>
+        <div id="errorMsg"></div>
+    </div>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script>
+    'use strict';
+    // Put variables in global scope to make them available to the browser console.
+    const constraints = window.constraints = {
+        audio: false,
+        video: true
+    };
+ 
+    function handleSuccess(stream) {
+        const video = document.querySelector('video');
+        const videoTracks = stream.getVideoTracks();
+        console.log('Got stream with constraints:', constraints);
+        console.log(`Using video device: ${videoTracks[0].label}`);
+        window.stream = stream; // make variable available to browser console
+        video.srcObject = stream;
+    }
+ 
+    function handleError(error) {
+        if(error.name === 'ConstraintNotSatisfiedError') {
+            let v = constraints.video;
+            errorMsg(``);
+        } else if(error.name === 'PermissionDeniedError') {
+            errorMsg('');
+        }
+        errorMsg('');
+    }
+ 
+    function errorMsg(msg, error) {
+        const errorElement = document.querySelector('#errorMsg');
+        errorElement.innerHTML += `<p>${msg}</p>`;
+        if(typeof error !== 'undefined') {
+            console.error(error);
+        }
+    }
+    async function init(e) {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            handleSuccess(stream);
+            e.target.disabled = true;
+        } catch(e) {
+            handleError(e);
+        }
+    }
+    document.querySelector('#showVideo').addEventListener('click', e => init(e));
+    </script>
+</body>
+ 
+</html>
